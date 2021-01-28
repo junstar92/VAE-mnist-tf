@@ -18,7 +18,7 @@ def parse_args():
     parser.add_argument('--seed', type=int, default=0, help='random seed')
     
     parser.add_argument('--add_noise', type=bool, default=False, help='boolean for adding noise to input image')
-    parser.add_argument('--noise_factor', type=float, default=0.8, help='Factor of noise')
+    parser.add_argument('--noise_factor', type=float, default=0.7, help='Factor of noise')
     parser.add_argument('--dim_z', type=int, default=2, help='Dimension of latent vector')#, required=True)
     parser.add_argument('--n_hidden', type=int, default=500, help='Number of hidden units in MLP')
     parser.add_argument('--learning_rate', type=float, default=1e-3, help='Learning rate of adam optimizer')
