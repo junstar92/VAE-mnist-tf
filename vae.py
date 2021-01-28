@@ -53,10 +53,10 @@ def gaussian_encoder(input_shape, args):
     x = tf.keras.layers.Dropout(0.1)(x)
     
     # output
-    mean = tf.keras.layers.Dense(args.dim_z, kernel_initializer=w_init)(x)
-    stddev = tf.keras.layers.Dense(args.dim_z, kernel_initializer=w_init)(x)
+    mu = tf.keras.layers.Dense(args.dim_z, kernel_initializer=w_init)(x)
+    sigma = tf.keras.layers.Dense(args.dim_z, kernel_initializer=w_init)(x)
     
-    encoder = tf.keras.Model(inputs, [mean, stddev])
+    encoder = tf.keras.Model(inputs, [mu, sigma])
     encoder.summary()
     
     return encoder
