@@ -122,7 +122,7 @@ def main(args):
         
         # add noise
         if args.add_noise:
-            x_PMLR = x_PMLR * args.noise_factor * np.random.randn(*x_PMLR.shape)
+            x_PMLR = x_PMLR + args.noise_factor * np.random.randn(*x_PMLR.shape)
     
     for epoch in range(args.num_epochs):
         print(f'Start of epoch {epoch+1}')
