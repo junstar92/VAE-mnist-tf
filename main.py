@@ -6,6 +6,7 @@ from vae import VAE
 from utils import *
 
 import tensorflow as tf
+import numpy as np
 import argparse
 
 def parse_args():
@@ -20,10 +21,16 @@ def parse_args():
     parser.add_argument('--dim_z', type=int, default=2, help='Dimension of latent vector')#, required=True)
     parser.add_argument('--n_hidden', type=int, default=500, help='Number of hidden units in MLP')
     parser.add_argument('--learning_rate', type=float, default=1e-3, help='Learning rate of adam optimizer')
-    parser.add_argument('--num_epochs', type=int, default=20, help='The number of epochs to run')
+    parser.add_argument('--num_epochs', type=int, default=60, help='The number of epochs to run')
     parser.add_argument('--batch_size', type=int, default=128, help='Batch size')
     
-    #parser.add_argument('--')
+    parser.add_argument('--PRR_n_img_x', type=int, default=10, help='Number of images along x-axis')
+    parser.add_argument('--PRR_n_img_y', type=int, default=10, help='Number of images along y-axis')
+    parser.add_argument('--PMLR_n_img_x', type=int, default=20, help='Number of images along x-axis')
+    parser.add_argument('--PMLR_n_img_y', type=int, default=20, help='Number of images along y-axis')
+    parser.add_argument('--PMLR_z_range', type=float, default=2.0, help='Range for uniformly distributed latent vector')
+    parser.add_argument('--PMLR_n_samples', type=int, default=5000, help='Number of samples in order to get distribution of labeled data')
+    
     return check_args(parser.parse_args())
     
 def check_args(args):
@@ -81,10 +88,6 @@ def main(args):
     x_train, _, x_test, y_test, input_shape = prepare_dataset(args)
     n_samples = x_train.shape[0]
     
-    # plot utils
-    PRP = Plot_Reproduce_Result(args.output)
-    PMLR = Plot_Manifold_Learning_Result(args.output)
-    
     # build model
     vae = VAE(input_shape, args)
     
@@ -97,7 +100,31 @@ def main(args):
     # train
     total_batch = int(n_samples / args.batch_size)
     
-    PRP.save_image(x_test[:64], 'input.jpg')    
+    # plot reproduce result
+    PRR = Plot_Reproduce_Result(args.output, args.PRR_n_img_x, args.PRR_n_img_y)
+    
+    # add noise to input and save input images
+    x_PRR = x_test[:PRR.n_total, :]
+    PRR.save_image(x_PRR, 'input.jpg')
+    
+    if args.add_noise:
+        x_PRR = x_PRR * np.random.randint(2, size=x_PRR.shape)
+        x_PRR += np.random.randint(2, size=x_PRR.shape)
+        
+        PRR.save_image(x_PRR, name='input_noise.jpg')
+    
+    # plot manifold learning result
+    if args.dim_z == 2:
+        PMLR = Plot_Manifold_Learning_Result(args.output, args.PMLR_n_img_x, args.PMLR_n_img_y, z_range=args.PMLR_z_range)
+     
+        x_PMLR = x_test[:args.PMLR_n_samples, :]
+        id_PMLR = y_test[:args.PMLR_n_samples, :]
+        
+        # add noise
+        if args.add_noise:
+            x_PMLR = x_PMLR * np.random.randint(2, size=x_PMLR.shape)
+            x_PMLR += np.random.randint(2, size=x_PMLR.shape)
+    
     for epoch in range(args.num_epochs):
         print(f'Start of epoch {epoch+1}')
         
@@ -124,16 +151,16 @@ def main(args):
                 print(f'Epoch: {epoch+1} step: {step} mean loss = {loss_metric.result().numpy()}')
                 print(f'BCE loss: {bce_loss}, KL loss: {kld_loss}')
         
-        x_hat, _, _ = vae(x_test[:64])
-        PRP.save_image(x_hat.numpy(), f'PRR_epoch_{epoch+1:02d}.jpg')
+        x_PRR_hat, _, _ = vae(x_PRR)
+        PRR.save_image(x_PRR_hat.numpy(), f'PRR_epoch_{epoch+1:02d}.jpg')
         
         if args.dim_z == 2:
             y_PMLR = vae.decoder(PMLR.z)
             PMLR.save_image(y_PMLR.numpy(), f'PMLR_epoch_{epoch+1:02d}.jpg')
             
-            mu, sigma = vae.encoder(x_test[:5000])
+            mu, sigma = vae.encoder(x_PMLR)
             z_PMLR = vae.sampling_layer((mu, sigma))
-            PMLR.save_scattered_image(z_PMLR, y_test[:5000], name=f'PMLR_map_epoch_{epoch+1:02d}.jpg')
+            PMLR.save_scattered_image(z_PMLR, id_PMLR, name=f'PMLR_map_epoch_{epoch+1:02d}.jpg')
 
 if __name__ == '__main__':
     # parse arguments
