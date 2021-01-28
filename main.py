@@ -18,10 +18,11 @@ def parse_args():
     parser.add_argument('--seed', type=int, default=0, help='random seed')
     
     parser.add_argument('--add_noise', type=bool, default=False, help='boolean for adding noise to input image')
+    parser.add_argument('--noise_factor', type=float, default=0.8, help='Factor of noise')
     parser.add_argument('--dim_z', type=int, default=2, help='Dimension of latent vector')#, required=True)
     parser.add_argument('--n_hidden', type=int, default=500, help='Number of hidden units in MLP')
     parser.add_argument('--learning_rate', type=float, default=1e-3, help='Learning rate of adam optimizer')
-    parser.add_argument('--num_epochs', type=int, default=60, help='The number of epochs to run')
+    parser.add_argument('--num_epochs', type=int, default=40, help='The number of epochs to run')
     parser.add_argument('--batch_size', type=int, default=128, help='Batch size')
     
     parser.add_argument('--PRR_n_img_x', type=int, default=10, help='Number of images along x-axis')
@@ -108,8 +109,7 @@ def main(args):
     PRR.save_image(x_PRR, 'input.jpg')
     
     if args.add_noise:
-        x_PRR = x_PRR * np.random.randint(2, size=x_PRR.shape)
-        x_PRR += np.random.randint(2, size=x_PRR.shape)
+        x_PRR = x_PRR + args.noise_factor * np.random.randn(*x_PRR.shape)
         
         PRR.save_image(x_PRR, name='input_noise.jpg')
     
@@ -122,8 +122,7 @@ def main(args):
         
         # add noise
         if args.add_noise:
-            x_PMLR = x_PMLR * np.random.randint(2, size=x_PMLR.shape)
-            x_PMLR += np.random.randint(2, size=x_PMLR.shape)
+            x_PMLR = x_PMLR * args.noise_factor * np.random.randn(*x_PMLR.shape)
     
     for epoch in range(args.num_epochs):
         print(f'Start of epoch {epoch+1}')
