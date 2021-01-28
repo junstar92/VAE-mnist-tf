@@ -17,6 +17,10 @@ def prepare_dataset(args):
     x_train = x_train.reshape(-1, input_shape)
     x_test = x_test.reshape(-1, input_shape)
     
+    # one-hot encoding
+    y_train = tf.one_hot(y_train, depth=10)
+    y_test = tf.one_hot(y_test, depth=10)
+    
     # normalization
     x_train = x_train / 255.
     x_test = x_test / 255.
@@ -101,7 +105,7 @@ class Plot_Manifold_Learning_Result():
     def save_scattered_image(self, z, id, name='scattered_image.jpg'):
         N = 10
         plt.figure(figsize=(8, 6))
-        plt.scatter(z[:, 0], z[:, 1], c=id, marker='o', edgecolor='none', cmap=discrete_cmap(N, 'jet'))
+        plt.scatter(z[:, 0], z[:, 1], c=np.argmax(id, 1), marker='o', edgecolor='none', cmap=discrete_cmap(N, 'jet'))
         plt.colorbar(ticks=range(N))
         axes = plt.gca()
         axes.set_xlim([-self.z_range-2, self.z_range+2])
