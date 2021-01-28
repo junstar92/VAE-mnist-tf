@@ -52,7 +52,7 @@ class Plot_Reproduce_Result():
         img = np.zeros((self.img_h * self.n_img_y, self.img_w * self.n_img_x))
         
         for idx, image in enumerate(images):
-            i = int(idx / self.n_img_y)
+            i = int(idx / self.n_img_x)
             j = int(idx % self.n_img_x)
             
             img[i * self.img_h:i * self.img_h + self.img_h, 
@@ -94,7 +94,7 @@ class Plot_Manifold_Learning_Result():
         img = np.zeros((self.img_h * self.n_img_y, self.img_w * self.n_img_x))
         
         for idx, image in enumerate(images):
-            i = int(idx / self.n_img_y)
+            i = int(idx / self.n_img_x)
             j = int(idx % self.n_img_x)
             
             img[i * self.img_h:i * self.img_h + self.img_h, 
