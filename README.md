@@ -74,3 +74,9 @@ Command : `python main.py --dim_z 2 --num_epochs 60`
 |Learned MNIST manifold|Distribution of labeled data|
 |:---:|:---:|
 |<img src="results/PMLR_epoch_60.jpg">|<img src="results/PMLR_map_epoch_60.jpg">|
+
+## Reference
+
+The implementation is based on 
+* https://github.com/hwalsuklee/tensorflow-mnist-VAE
+* [Auto-Encoding Variational Bayes](https://arxiv.org/pdf/1312.6114.pdf)
